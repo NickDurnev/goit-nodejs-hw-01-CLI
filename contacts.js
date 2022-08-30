@@ -2,68 +2,60 @@ import { promises } from "fs";
 import path from "path";
 const contactsPath = path.resolve("./db/contacts.json");
 
-export function listContacts() {
-  promises
-    .readFile(contactsPath, "utf-8")
-    .then((data) => console.table(JSON.parse(data)))
-    .catch((err) => console.log(err));
+export async function listContacts() {
+  try {
+    const contacts = await promises.readFile(contactsPath, "utf-8");
+    console.table(JSON.parse(contacts));
+  } catch (error) {
+    console.log(error);
+  }
 }
 
-export function getContactById(contactId) {
-  promises
-    .readFile(contactsPath, "utf-8")
-    .then((data) => {
-      const parsedData = JSON.parse(data);
-      const contact = parsedData.find(({ id }) => id === contactId);
-      console.log(contact);
-    })
-    .catch((err) => console.log(err));
+export async function getContactById(contactId) {
+  try {
+    const contacts = await promises.readFile(contactsPath, "utf-8");
+    const contact = JSON.parse(contacts).find(({ id }) => id === contactId);
+    console.log(contact);
+  } catch (error) {
+    console.log(error);
+  }
 }
 
-export function removeContact(contactId) {
-  promises
-    .readFile(contactsPath, "utf-8")
-    .then((data) => {
-      const parsedData = JSON.parse(data);
-      const filteredContacts = parsedData.filter(({ id }) => id !== contactId);
-      return filteredContacts;
-    })
-    .then((contacts) =>
-      promises.writeFile(contactsPath, JSON.stringify(contacts), "utf-8")
-    )
-    .then(() => {
-      const contacts = promises.readFile(contactsPath, "utf-8");
-      return contacts;
-    })
-    .then((contacts) => {
-      console.table(JSON.parse(contacts));
-    })
-    .catch((err) => console.log(err));
+export async function removeContact(contactId) {
+  try {
+    const contacts = await promises.readFile(contactsPath, "utf-8");
+    const filteredContacts = JSON.parse(contacts).filter(
+      ({ id }) => id !== contactId
+    );
+    const updatedContacts = await promises.writeFile(
+      contactsPath,
+      JSON.stringify(filteredContacts),
+      "utf-8"
+    );
+    console.table(filteredContacts);
+  } catch (error) {
+    console.log(error);
+  }
 }
 
-export function addContact(name, email, phone) {
-  promises
-    .readFile(contactsPath, "utf-8")
-    .then((data) => {
-      const parsedData = JSON.parse(data);
-      const newContact = {
-        id: String(parsedData.length + 1),
-        name,
-        email,
-        phone,
-      };
-      const contacts = [...parsedData, newContact];
-      return contacts;
-    })
-    .then((contacts) =>
-      promises.writeFile(contactsPath, JSON.stringify(contacts), "utf-8")
-    )
-    .then(() => {
-      const contacts = promises.readFile(contactsPath, "utf-8");
-      return contacts;
-    })
-    .then((contacts) => {
-      console.table(JSON.parse(contacts));
-    })
-    .catch((err) => console.log(err));
+export async function addContact(name, email, phone) {
+  try {
+    const contacts = await promises.readFile(contactsPath, "utf-8");
+    const parsedContacts = JSON.parse(contacts);
+    const newContact = {
+      id: String(parsedContacts.length + 2),
+      name,
+      email,
+      phone,
+    };
+    const updatedContacts = [...parsedContacts, newContact];
+    await promises.writeFile(
+      contactsPath,
+      JSON.stringify(updatedContacts),
+      "utf-8"
+    );
+    console.table(updatedContacts);
+  } catch (error) {
+    console.log(error);
+  }
 }
