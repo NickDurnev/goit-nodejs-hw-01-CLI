@@ -18,6 +18,14 @@ program.parse(process.argv);
 
 const argv = program.opts();
 
+const start = async (argv) => {
+  try {
+    await invokeAction(argv);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 function invokeAction({ action, id, name, email, phone }) {
   switch (action) {
     case "list":
